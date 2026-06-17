@@ -44,6 +44,25 @@ Open multiple browser tabs or devices on your network:
   pkill node
   ```
 
+### 5. Running with Docker (Alternative)
+
+You can run the application using Docker without installing Node.js locally:
+
+**Prerequisites:** [Docker](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
+
+```bash
+# Build and start the container
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop the container
+docker compose down
+```
+
+The server will be available at `http://localhost:3003`.
+
 ---
 
 ## 🌐 Overcoming Network Restrictions (Wi-Fi Isolation & Firewalls)
