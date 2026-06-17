@@ -25,7 +25,11 @@
 - **Internal:** `http://localhost:3003`
 - **Public:** `https://labens.dct.ufrn.br/audiochat` (Apache reverse proxy)
 - Apache config: SSL termination + `mod_proxy_wstunnel` for ws:// upgrade
-- The app's root path is proxied — no sub-path prefix in the app itself
+- The app runs under the `/audiochat` sub-path. Apache proxies:
+  - `ProxyPass /audiochat http://localhost:3003/` (static files)
+  - `RewriteRule ^/audiochat/(.*) ws://localhost:3003/$1 [P,L]` (WebSocket upgrade)
+- Active Apache configs: `labens.conf` (HTTP→HTTPS redirect) and `labens-le-ssl.conf` (SSL + proxy) in `/etc/httpd/sites-available/`
+- `audiochat.conf` exists in `sites-available` as a draft but is NOT active
 
 ## Project Structure
 ```
@@ -50,6 +54,12 @@
 - No JS comments in production code
 - WebRTC audio constraints at `app.js:117-132`
 - Opus HQ override (128kbps stereo) at `app.js:403-432`
+
+## Critical Gotchas (Reverse Proxy Sub-path)
+- Apache proxies `/audiochat` → `localhost:3003/` (strips prefix). The Express app sees paths at root.
+- **`index.html:8`** — `<base href="/audiochat/">` required so relative CSS/JS paths resolve correctly.
+- **`app.js:139`** — WebSocket URL must include `/audiochat` path to match Apache's RewriteRule.
+- `docker compose up -d --build` needed when static files (HTML/CSS/JS) change.
 
 ## Useful Patterns
 - `clients` Map in `server.js` tracks role→socket, overwrites on re-register
