@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Podcast Studio Audio Router</title>
+  <meta name="description" content="Sleek, low-latency WebRTC-based mix-minus audio connection for remote podcast guests.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="glass-bg"></div>
+  
+  <main class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <span class="logo-icon">🎙️</span>
+        <h1>Studio Audio Router</h1>
+      </div>
+      <p class="subtitle">Broadcast-grade remote guest connection</p>
+    </header>
+
+    <!-- Setup Screen (Role Selection) -->
+    <section id="setup-screen" class="glass-card fade-in">
+      <h2>Select Your Role</h2>
+      <p class="section-desc">Choose your role to join the session. Local studio hosts must connect separately from their respective devices.</p>
+      
+      <div class="role-grid">
+        <button class="role-card host-btn" data-role="host-1" id="role-host-1">
+          <div class="role-icon">🎙️</div>
+          <h3>Host 1</h3>
+          <span>Local Studio Mic 1</span>
+        </button>
+        <button class="role-card host-btn" data-role="host-2" id="role-host-2">
+          <div class="role-icon">🎙️</div>
+          <h3>Host 2</h3>
+          <span>Local Studio Mic 2</span>
+        </button>
+        <button class="role-card host-btn" data-role="host-3" id="role-host-3">
+          <div class="role-icon">🎙️</div>
+          <h3>Host 3</h3>
+          <span>Local Studio Mic 3</span>
+        </button>
+        <button class="role-card guest-btn" data-role="guest" id="role-guest">
+          <div class="role-icon">🌍</div>
+          <h3>Remote Guest</h3>
+          <span>Interview Guest Stream</span>
+        </button>
+      </div>
+
+      <div class="audio-settings-preview">
+        <h3>Pre-flight Device Setup</h3>
+        <p class="warning-alert">⚠️ HEADPHONES ARE REQUIRED to prevent audio feedback loop.</p>
+        
+        <div class="control-row">
+          <label for="mic-select">Microphone Input:</label>
+          <select id="mic-select" class="custom-select"><option value="">Loading microphones...</option></select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Dashboard Screen (Hidden initially) -->
+    <section id="dashboard-screen" class="glass-card fade-in hidden">
+      <div class="dashboard-header">
+        <div class="role-badge" id="active-role-badge">Role: Host 1</div>
+        <div class="status-indicator">
+          <span class="status-dot disconnected" id="connection-status-dot"></span>
+          <span id="connection-status-text">Disconnected</span>
+        </div>
+      </div>
+
+      <!-- Level Meters Grid -->
+      <div class="meters-container">
+        <!-- Local Input Card -->
+        <div class="meter-card local-card">
+          <div class="meter-header">
+            <h4>Your Microphone (Local)</h4>
+            <button class="icon-btn" id="mute-btn" aria-label="Mute microphone">🎙️</button>
+          </div>
+          <div class="visualizer-container">
+            <canvas id="local-visualizer" class="level-canvas"></canvas>
+            <div class="db-ticks">
+              <span>-60</span><span>-40</span><span>-20</span><span>-10</span><span>0 dB</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remote Peers Container -->
+        <div class="remote-peers-section">
+          <h3>Connections</h3>
+          <div id="remote-peers-grid" class="remote-grid">
+            <!-- Dynamically populated remote cards -->
+            <p class="placeholder-text" id="peers-placeholder">Waiting for remote guest/hosts to connect...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control Panel & Diagnostics -->
+      <footer class="dashboard-footer">
+        <div class="settings-panel">
+          <h4>Audio Optimization Toggles</h4>
+          <div class="toggle-grid">
+            <label class="switch-container">
+              <input type="checkbox" id="toggle-echo" checked>
+              <span class="switch-slider"></span>
+              <span class="switch-label">Echo Cancellation</span>
+            </label>
+            <label class="switch-container">
+              <input type="checkbox" id="toggle-noise" checked>
+              <span class="switch-slider"></span>
+              <span class="switch-label">Noise Suppression</span>
+            </label>
+            <label class="switch-container">
+              <input type="checkbox" id="toggle-gain" checked>
+              <span class="switch-slider"></span>
+              <span class="switch-label">Auto Gain Control</span>
+            </label>
+            <label class="switch-container">
+              <input type="checkbox" id="toggle-hq" checked>
+              <span class="switch-slider"></span>
+              <span class="switch-label">Studio HQ Audio (Opus 128kbps)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="diagnostics-panel">
+          <h4>Diagnostics</h4>
+          <div class="diagnostic-stats">
+            <div class="stat-item">
+              <span class="stat-label">Connection:</span>
+              <span class="stat-val" id="diag-signaling">Offline</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Active Connections:</span>
+              <span class="stat-val" id="diag-peers">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Estimated Latency:</span>
+              <span class="stat-val" id="diag-latency">-</span>
+            </div>
+          </div>
+          <button class="btn btn-danger" id="leave-btn">Disconnect Session</button>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <!-- Invisible elements for playing WebRTC incoming audio streams -->
+  <div id="audio-receivers" style="display:none;"></div>
+  
+  <script src="app.js"></script>
+</body>
+</html>
