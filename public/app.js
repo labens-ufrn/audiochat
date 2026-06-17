@@ -136,7 +136,7 @@ function connectSignaling() {
   updateStatus('connecting', 'Connecting to server...');
   
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const serverUrl = `${protocol}//${window.location.host}`;
+  const serverUrl = `${protocol}//${window.location.host}/audiochat`;
   
   ws = new WebSocket(serverUrl);
   
