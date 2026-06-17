@@ -11,7 +11,7 @@ const app = express();
 const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3003;
 
 // Serve static frontend files from /public
 app.use(express.static(path.join(__dirname, 'public')));
@@ -27,7 +27,7 @@ wss.on('connection', (ws) => {
   ws.on('message', (message) => {
     try {
       const data = JSON.parse(message);
-      
+
       switch (data.type) {
         case 'register':
           registerClient(ws, data.role);
@@ -51,7 +51,7 @@ wss.on('connection', (ws) => {
     if (clientRole) {
       console.log(`Client disconnected: ${clientRole}`);
       clients.delete(clientRole);
-      
+
       // Notify other relevant peers about the disconnect
       notifyDisconnect(clientRole);
     }
@@ -81,10 +81,10 @@ wss.on('connection', (ws) => {
     console.log(`Successfully registered: ${role}`);
 
     // Confirm registration to client
-    socket.send(JSON.stringify({ 
-      type: 'registered', 
-      role, 
-      activePeers: Array.from(clients.keys()).filter(k => k !== role) 
+    socket.send(JSON.stringify({
+      type: 'registered',
+      role,
+      activePeers: Array.from(clients.keys()).filter(k => k !== role)
     }));
 
     // Notify peers
