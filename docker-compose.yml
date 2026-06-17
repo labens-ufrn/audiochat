@@ -1,0 +1,19 @@
+services:
+  audiochat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: studio-audio-router
+    ports:
+      - "${PORT:-3003}:3003"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:3003"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
